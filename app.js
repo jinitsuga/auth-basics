@@ -5,11 +5,10 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-
+require("dotenv").confg();
 const bcrypt = require("bcryptjs");
 
-const mongoDb =
-  "mongodb+srv://jinitsuga:qweasd356@talentscluster.o0zdqp1.mongodb.net/users";
+const mongoDb = process.env.MONGO_DB;
 
 mongoose.connect(mongoDb, { useUnifiedTopology: true, useNewUrlParser: true });
 const db = mongoose.connection;
@@ -57,7 +56,13 @@ passport.deserializeUser(async function (id, done) {
   }
 });
 
-app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.urlencoded({ extended: false }));
