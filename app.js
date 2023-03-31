@@ -6,6 +6,8 @@ const LocalStrategy = require("passport-local").Strategy;
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
+const bcrypt = require("bcryptjs");
+
 const mongoDb =
   "mongodb+srv://jinitsuga:qweasd356@talentscluster.o0zdqp1.mongodb.net/users";
 
@@ -67,17 +69,17 @@ app.get("/", (req, res) => {
 app.get("/sign-up", (req, res) => res.render("signUpForm"));
 
 app.post("/signUpForm", (req, res, next) => {
-  try {
+  bcrypt.hash(req.body.password, 10, async (err, hashedPw) => {
+    if (err) {
+      return next(err);
+    }
     const user = new User({
       username: req.body.username,
-      password: req.body.password,
+      password: hashedPw,
     });
-
     const result = user.save();
     res.redirect("/");
-  } catch (err) {
-    return next(err);
-  }
+  });
 });
 
 app.post(
@@ -87,5 +89,16 @@ app.post(
     failureRedirect: "/",
   })
 );
+
+// Using 'logout' function provided by Passport js
+
+app.get("/log-out", (req, res, next) => {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
+});
 
 app.listen(3000, () => console.log("app is listening on port 3000!"));
